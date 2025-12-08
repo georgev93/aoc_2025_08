@@ -55,6 +55,10 @@ pub fn solve_pt1(input_file: &str, shortest_circuits: usize) -> u64 {
             (existing_connection_for_j1, existing_connection_for_j2)
         {
             if circuit1 == circuit2 {
+                // println!(
+                //     "Redundant Connection: nodes {} and {} in circuit {}",
+                //     connection.1.0, connection.1.1, circuit1
+                // );
                 continue;
             }
             let circuit: usize;
@@ -67,53 +71,56 @@ pub fn solve_pt1(input_file: &str, shortest_circuits: usize) -> u64 {
                 absorbed_circuit = circuit1;
             }
 
-            println!(
-                "Circuit sizes: {} and {}",
-                circuit_size_vec[circuit], circuit_size_vec[absorbed_circuit]
-            );
-
             circuit_size_vec[circuit] += circuit_size_vec[absorbed_circuit];
             circuit_size_vec[absorbed_circuit] = 0;
 
             for junction in &mut mapping_vec {
-                if matches!(junction, Some(absorbed_circuit)) {
+                if *junction == Some(absorbed_circuit) {
+                    // dbg!(&junction);
                     *junction = Some(circuit);
                 }
             }
-            println!(
-                "Merging circuit {} into circuit {} after connecting nodes {} and {}",
-                absorbed_circuit, circuit, connection.1.0, connection.1.1
-            );
-            println!(
-                "    Circuit {} size: {}",
-                circuit, circuit_size_vec[circuit]
-            );
+            // println!(
+            //     "Merging circuit {} into circuit {} after connecting nodes {} and {}",
+            //     absorbed_circuit, circuit, connection.1.0, connection.1.1
+            // );
+            // println!(
+            //     "    Circuit {} size: {}",
+            //     circuit, circuit_size_vec[circuit]
+            // );
         } else {
+            // println!(
+            //     "!!!! Evaluating {} on circuit {} and {} on circuit {}",
+            //     connection.1.0,
+            //     existing_connection_for_j1.unwrap_or_else(|| 1000),
+            //     connection.1.1,
+            //     existing_connection_for_j2.unwrap_or_else(|| 1000)
+            // );
             let mut circuit = existing_connection_for_j1.or(existing_connection_for_j2);
 
             if circuit.is_none() {
                 circuit_size_vec.push(2);
                 circuit = Some(circuit_size_vec.len() - 1);
-                println!(
-                    "New circuit {}: nodes {} and {}",
-                    circuit.unwrap(),
-                    connection.1.0,
-                    connection.1.1
-                );
+                // println!(
+                //     "New circuit {}: nodes {} and {}",
+                //     circuit.unwrap(),
+                //     connection.1.0,
+                //     connection.1.1
+                // );
             } else {
                 circuit_size_vec[circuit.unwrap()] += 1;
-                println!(
-                    "Connecting to existing circuit {}: {}, {}",
-                    circuit.unwrap(),
-                    connection.1.0,
-                    connection.1.1
-                );
+                // println!(
+                //     "Connecting to existing circuit {}: {}, {}",
+                //     circuit.unwrap(),
+                //     connection.1.0,
+                //     connection.1.1
+                // );
             }
-            println!(
-                "    Circuit {} size: {}",
-                circuit.unwrap(),
-                circuit_size_vec[circuit.unwrap()]
-            );
+            // println!(
+            //     "    Circuit {} size: {}",
+            //     circuit.unwrap(),
+            //     circuit_size_vec[circuit.unwrap()]
+            // );
 
             mapping_vec[connection.1.0] = circuit;
             mapping_vec[connection.1.1] = circuit;
@@ -127,8 +134,6 @@ pub fn solve_pt1(input_file: &str, shortest_circuits: usize) -> u64 {
     for circuit_size in &circuit_size_vec[(circuit_size_vec.len() - 3)..] {
         result *= circuit_size;
     }
-
-    dbg!(&circuit_size_vec);
 
     result
 }
@@ -147,7 +152,7 @@ mod tests {
 
     const EXAMPLE_PT1: u64 = 40;
     const EXAMPLE_PT2: u64 = 0;
-    const ACTUAL_PT1: u64 = 38912; // 38912 Too low, 128600 too high
+    const ACTUAL_PT1: u64 = 57564;
     const ACTUAL_PT2: u64 = 0;
 
     // #[test]
