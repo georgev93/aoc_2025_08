@@ -49,10 +49,11 @@ impl JunctionMess {
 
         // Multiply the three largest circuits
         // Sort by largest circuits
-        self.circuit_size_vec.sort();
+        self.circuit_size_vec
+            .select_nth_unstable_by(3, |a, b| b.cmp(a));
 
         let mut result = 1u64;
-        for circuit_size in &self.circuit_size_vec[(self.circuit_size_vec.len() - 3)..] {
+        for circuit_size in &self.circuit_size_vec[..3] {
             result *= circuit_size;
         }
 
