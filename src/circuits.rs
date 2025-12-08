@@ -39,42 +39,46 @@ impl JunctionMess {
             })
             .collect();
 
-        Self {
+        let mut ret_val = Self {
             mapping_vec: vec![None; input_arr.len()],
             circuit_size_vec: Vec::with_capacity(input_arr.len()),
             distance_vec: Vec::with_capacity(input_arr.len().pow(2)),
             coordinates: input_arr,
             most_recent_circuit_index: 0,
             last_pair: (0, 0),
-        }
+        };
+
+        ret_val.calculate_distances();
+        ret_val.sort_distances();
+        ret_val
     }
 
     pub fn pt1(&mut self, num_of_connections: usize) -> u64 {
-        self.calculate_distances();
-        self.sort_distances();
         for connection in 0..num_of_connections {
             self.make_shortest_connection();
         }
 
         // Multiply the three largest circuits
         // Sort by largest circuits
-        self.circuit_size_vec
-            .select_nth_unstable_by(3, |a, b| b.cmp(a));
-
-        let mut result = 1u64;
-        for circuit_size in &self.circuit_size_vec[..3] {
-            result *= circuit_size;
+        let mut top3 = [0u64; 3];
+        for &x in &self.circuit_size_vec {
+            if x > top3[0] {
+                top3[2] = top3[1];
+                top3[1] = top3[0];
+                top3[0] = x;
+            } else if x > top3[1] {
+                top3[2] = top3[1];
+                top3[1] = x;
+            } else if x > top3[2] {
+                top3[2] = x;
+            }
         }
 
-        result
+        top3[0] * top3[1] * top3[2]
     }
 
     pub fn pt2(&mut self) -> u64 {
-        self.calculate_distances();
-        self.sort_distances();
-
         let num_of_junctions = self.coordinates.len() as u64;
-        println!("{}", num_of_junctions);
         self.make_shortest_connection();
         while self.circuit_size_vec[self.most_recent_circuit_index] < num_of_junctions {
             self.make_shortest_connection();

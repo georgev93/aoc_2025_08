@@ -14,8 +14,9 @@ pub fn solve_pt2(input_file: &str) -> u64 {
     juncion_mess.pt2()
 }
 
-pub fn solve(input_file: &str) -> (u64, u64) {
-    (0, 0)
+pub fn solve(input_file: &str, shortest_circuits: usize) -> (u64, u64) {
+    let mut juncion_mess = JunctionMess::new(input_file);
+    (juncion_mess.pt1(shortest_circuits), juncion_mess.pt2())
 }
 
 #[cfg(test)]
@@ -27,13 +28,13 @@ mod tests {
     const ACTUAL_PT1: u64 = 57564;
     const ACTUAL_PT2: u64 = 133296744;
 
-    // #[test]
-    // fn example() {
-    //     let my_file = FileParser::new("data/example.txt");
-    //     let (part_1, part_2) = solve(my_file.get_str());
-    //     assert_eq!(part_1, EXAMPLE_PT1);
-    //     assert_eq!(part_2, EXAMPLE_PT2);
-    // }
+    #[test]
+    fn example() {
+        let my_file = FileParser::new("data/example.txt");
+        let (part_1, part_2) = solve(my_file.get_str(), 10);
+        assert_eq!(part_1, EXAMPLE_PT1);
+        assert_eq!(part_2, EXAMPLE_PT2);
+    }
 
     #[test]
     fn example_pts() {
