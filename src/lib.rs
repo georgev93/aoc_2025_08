@@ -10,7 +10,8 @@ pub fn solve_pt1(input_file: &str, shortest_circuits: usize) -> u64 {
 }
 
 pub fn solve_pt2(input_file: &str) -> u64 {
-    0
+    let mut juncion_mess = JunctionMess::new(input_file);
+    juncion_mess.pt2()
 }
 
 pub fn solve(input_file: &str) -> (u64, u64) {
@@ -22,9 +23,9 @@ mod tests {
     use super::*;
 
     const EXAMPLE_PT1: u64 = 40;
-    const EXAMPLE_PT2: u64 = 0;
+    const EXAMPLE_PT2: u64 = 25272;
     const ACTUAL_PT1: u64 = 57564;
-    const ACTUAL_PT2: u64 = 0;
+    const ACTUAL_PT2: u64 = 133296744;
 
     // #[test]
     // fn example() {
@@ -38,7 +39,7 @@ mod tests {
     fn example_pts() {
         let my_file = FileParser::new("data/example.txt");
         assert_eq!(solve_pt1(my_file.get_str(), 10), EXAMPLE_PT1);
-        // assert_eq!(solve_pt2(my_file.get_str()), EXAMPLE_PT2);
+        assert_eq!(solve_pt2(my_file.get_str()), EXAMPLE_PT2);
     }
     //
     // #[test]
@@ -53,6 +54,6 @@ mod tests {
     fn actual_pts() {
         let my_file = FileParser::new("data/input.txt");
         assert_eq!(solve_pt1(my_file.get_str(), 1000), ACTUAL_PT1);
-        // assert_eq!(solve_pt2(my_file.get_str()), ACTUAL_PT2);
+        assert_eq!(solve_pt2(my_file.get_str()), ACTUAL_PT2);
     }
 }
