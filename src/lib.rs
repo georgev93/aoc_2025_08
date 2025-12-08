@@ -44,24 +44,80 @@ pub fn solve_pt1(input_file: &str, shortest_circuits: usize) -> u64 {
     }
 
     // Sort based on distance
-    distance_vec.sort();
+    distance_vec.sort_unstable_by_key(|x| x.0);
 
     // Make circuits
     for connection in &distance_vec[..shortest_circuits] {
         let existing_connection_for_j1 = mapping_vec[connection.1.0];
         let existing_connection_for_j2 = mapping_vec[connection.1.1];
 
-        let mut circuit = existing_connection_for_j1.or(existing_connection_for_j2);
+        if let (Some(circuit1), Some(circuit2)) =
+            (existing_connection_for_j1, existing_connection_for_j2)
+        {
+            if circuit1 == circuit2 {
+                continue;
+            }
+            let circuit: usize;
+            let absorbed_circuit: usize;
+            if circuit_size_vec[circuit1] > circuit_size_vec[circuit2] {
+                circuit = circuit1;
+                absorbed_circuit = circuit2;
+            } else {
+                circuit = circuit2;
+                absorbed_circuit = circuit1;
+            }
 
-        if circuit.is_none() {
-            circuit_size_vec.push(2);
-            circuit = Some(circuit_size_vec.len() - 1);
+            println!(
+                "Circuit sizes: {} and {}",
+                circuit_size_vec[circuit], circuit_size_vec[absorbed_circuit]
+            );
+
+            circuit_size_vec[circuit] += circuit_size_vec[absorbed_circuit];
+            circuit_size_vec[absorbed_circuit] = 0;
+
+            for junction in &mut mapping_vec {
+                if matches!(junction, Some(absorbed_circuit)) {
+                    *junction = Some(circuit);
+                }
+            }
+            println!(
+                "Merging circuit {} into circuit {} after connecting nodes {} and {}",
+                absorbed_circuit, circuit, connection.1.0, connection.1.1
+            );
+            println!(
+                "    Circuit {} size: {}",
+                circuit, circuit_size_vec[circuit]
+            );
         } else {
-            circuit_size_vec[circuit.unwrap()] += 1;
-        }
+            let mut circuit = existing_connection_for_j1.or(existing_connection_for_j2);
 
-        mapping_vec[connection.1.0] = circuit;
-        mapping_vec[connection.1.1] = circuit;
+            if circuit.is_none() {
+                circuit_size_vec.push(2);
+                circuit = Some(circuit_size_vec.len() - 1);
+                println!(
+                    "New circuit {}: nodes {} and {}",
+                    circuit.unwrap(),
+                    connection.1.0,
+                    connection.1.1
+                );
+            } else {
+                circuit_size_vec[circuit.unwrap()] += 1;
+                println!(
+                    "Connecting to existing circuit {}: {}, {}",
+                    circuit.unwrap(),
+                    connection.1.0,
+                    connection.1.1
+                );
+            }
+            println!(
+                "    Circuit {} size: {}",
+                circuit.unwrap(),
+                circuit_size_vec[circuit.unwrap()]
+            );
+
+            mapping_vec[connection.1.0] = circuit;
+            mapping_vec[connection.1.1] = circuit;
+        }
     }
 
     // Sort by largest circuits
@@ -71,6 +127,8 @@ pub fn solve_pt1(input_file: &str, shortest_circuits: usize) -> u64 {
     for circuit_size in &circuit_size_vec[(circuit_size_vec.len() - 3)..] {
         result *= circuit_size;
     }
+
+    dbg!(&circuit_size_vec);
 
     result
 }
@@ -89,7 +147,7 @@ mod tests {
 
     const EXAMPLE_PT1: u64 = 40;
     const EXAMPLE_PT2: u64 = 0;
-    const ACTUAL_PT1: u64 = 5491; // Too low
+    const ACTUAL_PT1: u64 = 38912; // 38912 Too low, 128600 too high
     const ACTUAL_PT2: u64 = 0;
 
     // #[test]
@@ -114,7 +172,7 @@ mod tests {
     //     assert_eq!(part_1, ACTUAL_PT1);
     //     assert_eq!(part_2, ACTUAL_PT2);
     // }
-
+    //
     #[test]
     fn actual_pts() {
         let my_file = FileParser::new("data/input.txt");
